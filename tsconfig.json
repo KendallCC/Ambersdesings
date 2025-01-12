@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // Puedes mantener ES6 como target
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "es2017"] // Cambiar 'es2016' por 'es2017' o más reciente
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
