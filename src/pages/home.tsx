@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import "../styles/home.css";
 import Carousel from "react-material-ui-carousel";
-import Image1 from "../assets/logo.png"; // Ejemplo de imagen 1
-import Image2 from "../assets/infoEnvios.png"; // Ejemplo de imagen 2
-import Image3 from "../assets/comocomprar.png"; // Ejemplo de imagen 3
-import Image4 from "../assets/comohacerelpago.png"; // Ejemplo de imagen 2
- 3
-import Image6 from "../assets/consejos.png"; // Ejemplo de imagen 3
-import Image7 from "../assets/horario.png"; // Ejemplo de imagen 3
-
-
+import Image1 from "../assets/logo.png";
+import Image2 from "../assets/infoEnvios.png";
+import Image3 from "../assets/comocomprar.png";
+import Image4 from "../assets/comohacerelpago.png";
+import Image6 from "../assets/consejos.png";
+import Image7 from "../assets/horario.png";
 
 import { Modal, Box } from "@mui/material";
 
@@ -34,7 +31,7 @@ const Home: React.FC = () => {
       </div>
       <section className="description-section">
         <h2>Bienvenidos a</h2>
-        {/* Carrusel con 3 imágenes diferentes */}
+        {/* Carrusel con imágenes responsivas */}
         <Carousel
           indicators={true}
           navButtonsAlwaysVisible={true}
@@ -42,11 +39,11 @@ const Home: React.FC = () => {
             marginBottom: "2rem",
             borderRadius: "8px",
             overflow: "hidden",
-            maxWidth: "1200px",
-            margin: "0 auto", // Centrar el carrusel
+            maxWidth: "100%",
+            margin: "0 auto",
           }}
         >
-          {[Image1, Image7,Image2, Image3,Image4,Image6].map((image, index) => (
+          {[Image1, Image7, Image2, Image3, Image4, Image6].map((image, index) => (
             <div
               key={index}
               style={{
@@ -55,7 +52,8 @@ const Home: React.FC = () => {
                 alignItems: "center",
                 backgroundColor: "#f5e8da",
                 borderRadius: "8px",
-                height: "600px", // Altura más grande para las imágenes
+                height: "40vh", // Altura relativa para pantallas pequeñas
+                maxHeight: "500px",
                 overflow: "hidden",
                 cursor: "zoom-in",
               }}
@@ -65,15 +63,15 @@ const Home: React.FC = () => {
                 src={image}
                 alt={`Amber Designs Image ${index + 1}`}
                 style={{
-                  maxWidth: "100%",
+                  width: "100%",
                   height: "100%",
-                  objectFit: "cover", // Ajustar la imagen para que ocupe más espacio
+                  objectFit: "contain", // Ajustar la imagen sin recortar
                 }}
               />
             </div>
           ))}
         </Carousel>
-        <p style={{fontWeight:"bolder",fontSize:"1.5rem"}}>
+        <p style={{ fontWeight: "bolder", fontSize: "1.2rem", textAlign: "center" }}>
           Nuestra tienda ofrece una selección única de collares, pulseras y bolsos hechos
           con amor y diseñados para destacar tu personalidad. Explora nuestras
           categorías y encuentra la pieza perfecta para ti o un ser querido.
@@ -94,8 +92,8 @@ const Home: React.FC = () => {
         <Box
           sx={{
             outline: "none",
-            width: "80vw", // Ancho máximo para controlar el tamaño
-            height: "80vh", // Altura máxima para controlar el tamaño
+            width: "80vw",
+            height: "80vh",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
