@@ -26,6 +26,7 @@ interface ProductoModalProps {
     nombre: string;
     descripcion: string;
     precio: number;
+    codigo?: string;
     imagenes: { urlImagen: string }[];
     categorias: { categoriaId: number }[];
   }) => void;
@@ -34,6 +35,7 @@ interface ProductoModalProps {
     nombre: string;
     descripcion?: string;
     precio: number;
+    codigo?: string;
     imagenes: { id: number; urlImagen: string; productoId: number }[];
     categorias: { categoriaId: number }[];
   } | null;
@@ -48,6 +50,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
+  const [codigo, setCodigo] = useState("");
   const [imagenes, setImagenes] = useState<Imagen[]>([]);
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState<number[]>(
     []
@@ -57,6 +60,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
     nombre: "",
     descripcion: "",
     precio: "",
+    codigo: "",
     imagenes: "",
     categorias: "",
   });
@@ -79,6 +83,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
       setNombre(producto.nombre || "");
       setDescripcion(producto.descripcion || "");
       setPrecio(producto.precio ? producto.precio.toString() : "");
+      setCodigo(producto.codigo || "");
       setImagenes(producto.imagenes || []);
       setCategoriasSeleccionadas(
         producto.categorias.map((categoria) => categoria.categoriaId) || []
@@ -87,10 +92,18 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
       setNombre("");
       setDescripcion("");
       setPrecio("");
+      setCodigo("");
       setImagenes([]);
       setCategoriasSeleccionadas([]);
     }
-    setErrors({ nombre: "", descripcion: "", precio: "", imagenes: "", categorias: "" });
+    setErrors({
+      nombre: "",
+      descripcion: "",
+      precio: "",
+      codigo: "",
+      imagenes: "",
+      categorias: "",
+    });
   }, [producto, open]);
 
   const validateFields = () => {
@@ -100,6 +113,9 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
       precio: /^[0-9]+(\.[0-9]{1,2})?$/.test(precio)
         ? ""
         : "El precio debe ser un número válido.",
+      codigo: codigo && codigo.trim().length > 50
+        ? "El código no debe exceder los 50 caracteres."
+        : "",
       imagenes:
         imagenes.some((img) => img.urlImagen.trim())
           ? ""
@@ -131,6 +147,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
         nombre,
         descripcion,
         precio: parseFloat(precio),
+        codigo: codigo.trim() || undefined,
         imagenes: imagenes.filter((img) => img.urlImagen.trim()),
         categorias: categoriasSeleccionadas.map((id) => ({ categoriaId: id })),
       });
@@ -142,9 +159,17 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
     setNombre("");
     setDescripcion("");
     setPrecio("");
+    setCodigo("");
     setImagenes([]);
     setCategoriasSeleccionadas([]);
-    setErrors({ nombre: "", descripcion: "", precio: "", imagenes: "", categorias: "" });
+    setErrors({
+      nombre: "",
+      descripcion: "",
+      precio: "",
+      codigo: "",
+      imagenes: "",
+      categorias: "",
+    });
     onClose();
   };
 
@@ -178,6 +203,14 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
             onChange={(e) => setPrecio(e.target.value)}
             error={!!errors.precio}
             helperText={errors.precio}
+          />
+          <TextField
+            label="Código (opcional)"
+            variant="outlined"
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value)}
+            error={!!errors.codigo}
+            helperText={errors.codigo}
           />
           <FormControl error={!!errors.categorias}>
             <InputLabel id="categorias-label">Categorías</InputLabel>

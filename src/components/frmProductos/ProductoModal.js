@@ -15,6 +15,7 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
     const [nombre, setNombre] = useState("");
     const [descripcion, setDescripcion] = useState("");
     const [precio, setPrecio] = useState("");
+    const [codigo, setCodigo] = useState("");
     const [imagenes, setImagenes] = useState([]);
     const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
     const [categorias, setCategorias] = useState([]);
@@ -22,6 +23,7 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
         nombre: "",
         descripcion: "",
         precio: "",
+        codigo: "",
         imagenes: "",
         categorias: "",
     });
@@ -42,6 +44,7 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
             setNombre(producto.nombre || "");
             setDescripcion(producto.descripcion || "");
             setPrecio(producto.precio ? producto.precio.toString() : "");
+            setCodigo(producto.codigo || "");
             setImagenes(producto.imagenes || []);
             setCategoriasSeleccionadas(producto.categorias.map((categoria) => categoria.categoriaId) || []);
         }
@@ -49,10 +52,18 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
             setNombre("");
             setDescripcion("");
             setPrecio("");
+            setCodigo("");
             setImagenes([]);
             setCategoriasSeleccionadas([]);
         }
-        setErrors({ nombre: "", descripcion: "", precio: "", imagenes: "", categorias: "" });
+        setErrors({
+            nombre: "",
+            descripcion: "",
+            precio: "",
+            codigo: "",
+            imagenes: "",
+            categorias: "",
+        });
     }, [producto, open]);
     const validateFields = () => {
         const newErrors = {
@@ -61,6 +72,9 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
             precio: /^[0-9]+(\.[0-9]{1,2})?$/.test(precio)
                 ? ""
                 : "El precio debe ser un número válido.",
+            codigo: codigo && codigo.trim().length > 50
+                ? "El código no debe exceder los 50 caracteres."
+                : "",
             imagenes: imagenes.some((img) => img.urlImagen.trim())
                 ? ""
                 : "Debe agregar al menos una imagen válida.",
@@ -85,6 +99,7 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
                 nombre,
                 descripcion,
                 precio: parseFloat(precio),
+                codigo: codigo.trim() || undefined,
                 imagenes: imagenes.filter((img) => img.urlImagen.trim()),
                 categorias: categoriasSeleccionadas.map((id) => ({ categoriaId: id })),
             });
@@ -95,12 +110,20 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
         setNombre("");
         setDescripcion("");
         setPrecio("");
+        setCodigo("");
         setImagenes([]);
         setCategoriasSeleccionadas([]);
-        setErrors({ nombre: "", descripcion: "", precio: "", imagenes: "", categorias: "" });
+        setErrors({
+            nombre: "",
+            descripcion: "",
+            precio: "",
+            codigo: "",
+            imagenes: "",
+            categorias: "",
+        });
         onClose();
     };
-    return (_jsxs(Dialog, { open: open, onClose: onClose, maxWidth: "sm", fullWidth: true, children: [_jsx(DialogTitle, { children: producto ? "Editar Producto" : "Agregar Producto" }), _jsx(DialogContent, { children: _jsxs(Box, { sx: { display: "flex", flexDirection: "column", gap: "1rem" }, children: [_jsx(TextField, { label: "Nombre", variant: "outlined", value: nombre, onChange: (e) => setNombre(e.target.value), error: !!errors.nombre, helperText: errors.nombre }), _jsx(TextField, { label: "Descripci\u00F3n", variant: "outlined", multiline: true, rows: 3, value: descripcion, onChange: (e) => setDescripcion(e.target.value), error: !!errors.descripcion, helperText: errors.descripcion }), _jsx(TextField, { label: "Precio", variant: "outlined", value: precio, onChange: (e) => setPrecio(e.target.value), error: !!errors.precio, helperText: errors.precio }), _jsxs(FormControl, { error: !!errors.categorias, children: [_jsx(InputLabel, { id: "categorias-label", children: "Categor\u00EDas" }), _jsx(Select, { labelId: "categorias-label", multiple: true, value: categoriasSeleccionadas, onChange: (e) => setCategoriasSeleccionadas(typeof e.target.value === "string"
+    return (_jsxs(Dialog, { open: open, onClose: onClose, maxWidth: "sm", fullWidth: true, children: [_jsx(DialogTitle, { children: producto ? "Editar Producto" : "Agregar Producto" }), _jsx(DialogContent, { children: _jsxs(Box, { sx: { display: "flex", flexDirection: "column", gap: "1rem" }, children: [_jsx(TextField, { label: "Nombre", variant: "outlined", value: nombre, onChange: (e) => setNombre(e.target.value), error: !!errors.nombre, helperText: errors.nombre }), _jsx(TextField, { label: "Descripci\u00F3n", variant: "outlined", multiline: true, rows: 3, value: descripcion, onChange: (e) => setDescripcion(e.target.value), error: !!errors.descripcion, helperText: errors.descripcion }), _jsx(TextField, { label: "Precio", variant: "outlined", value: precio, onChange: (e) => setPrecio(e.target.value), error: !!errors.precio, helperText: errors.precio }), _jsx(TextField, { label: "C\u00F3digo (opcional)", variant: "outlined", value: codigo, onChange: (e) => setCodigo(e.target.value), error: !!errors.codigo, helperText: errors.codigo }), _jsxs(FormControl, { error: !!errors.categorias, children: [_jsx(InputLabel, { id: "categorias-label", children: "Categor\u00EDas" }), _jsx(Select, { labelId: "categorias-label", multiple: true, value: categoriasSeleccionadas, onChange: (e) => setCategoriasSeleccionadas(typeof e.target.value === "string"
                                         ? e.target.value.split(",").map(Number)
                                         : e.target.value), input: _jsx(OutlinedInput, { label: "Categor\u00EDas" }), renderValue: (selected) => categorias
                                         .filter((cat) => selected.includes(cat.id))
