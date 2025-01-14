@@ -57,7 +57,7 @@ const ProductoTable: React.FC = () => {
     const filtered = productos.filter(
       (producto) =>
         producto.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        (producto.codigo && producto.codigo.toLowerCase().includes(search.toLowerCase()))
+        (producto.codigo?.toLowerCase().includes(search.toLowerCase()))
     );
     setFilteredProductos(filtered);
   }, [search, productos]);
@@ -132,7 +132,7 @@ const ProductoTable: React.FC = () => {
           data.precio,
           data.imagenes,
           data.categorias,
-          data.codigo,
+          data.codigo
         );
         enqueueSnackbar("Producto creado exitosamente", { variant: "success" });
       }
@@ -258,7 +258,7 @@ const ProductoTable: React.FC = () => {
               .map((producto) => (
                 <TableRow key={producto.id}>
                   <TableCell>{producto.id}</TableCell>
-                  <TableCell>{producto.codigo}</TableCell>
+                  <TableCell>{producto.codigo || "N/A"}</TableCell>
                   <TableCell>{producto.nombre}</TableCell>
                   <TableCell>{producto.descripcion}</TableCell>
                   <TableCell>₡{producto.precio}</TableCell>
