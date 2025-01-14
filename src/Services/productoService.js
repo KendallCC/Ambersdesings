@@ -28,17 +28,19 @@ export const getProductoById = (id) => __awaiter(void 0, void 0, void 0, functio
  * @param nombre - Nombre del producto
  * @param descripcion - Descripción del producto
  * @param precio - Precio del producto
+ * @param codigo - Código del producto (opcional)
  * @param imagenes - Array de imágenes del producto
  * @param categorias - Array de IDs de categorías asociadas
  * @returns El objeto Producto creado
  */
-export const createProducto = (nombre, descripcion, precio, imagenes, categorias) => __awaiter(void 0, void 0, void 0, function* () {
+export const createProducto = (nombre, descripcion, precio, imagenes, categorias, codigo) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(codigo);
     return apiRequest("/productos", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ nombre, descripcion, precio, imagenes, categorias }),
+        body: JSON.stringify({ nombre, descripcion, precio, codigo, imagenes, categorias }),
     });
 });
 /**

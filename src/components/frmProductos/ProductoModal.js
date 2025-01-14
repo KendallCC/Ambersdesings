@@ -72,9 +72,9 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
             precio: /^[0-9]+(\.[0-9]{1,2})?$/.test(precio)
                 ? ""
                 : "El precio debe ser un número válido.",
-            codigo: codigo && codigo.trim().length > 50
-                ? "El código no debe exceder los 50 caracteres."
-                : "",
+            codigo: codigo.trim()
+                ? ""
+                : "El código es obligatorio.",
             imagenes: imagenes.some((img) => img.urlImagen.trim())
                 ? ""
                 : "Debe agregar al menos una imagen válida.",
@@ -99,7 +99,7 @@ const ProductoModal = ({ open, onClose, onSave, producto, }) => {
                 nombre,
                 descripcion,
                 precio: parseFloat(precio),
-                codigo: codigo.trim() || undefined,
+                codigo: codigo.trim() || "sin codigo",
                 imagenes: imagenes.filter((img) => img.urlImagen.trim()),
                 categorias: categoriasSeleccionadas.map((id) => ({ categoriaId: id })),
             });

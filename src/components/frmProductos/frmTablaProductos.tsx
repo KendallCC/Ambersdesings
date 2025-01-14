@@ -115,6 +115,7 @@ const ProductoTable: React.FC = () => {
     nombre: string;
     descripcion: string;
     precio: number;
+    codigo: string;
     imagenes: { urlImagen: string }[];
     categorias: { categoriaId: number }[];
   }) => {
@@ -125,7 +126,14 @@ const ProductoTable: React.FC = () => {
         enqueueSnackbar("Producto actualizado exitosamente", { variant: "success" });
       } else {
         // Crear producto
-        await createProducto(data.nombre, data.descripcion, data.precio, data.imagenes, data.categorias);
+        await createProducto(
+          data.nombre,
+          data.descripcion,
+          data.precio,
+          data.imagenes,
+          data.categorias,
+          data.codigo,
+        );
         enqueueSnackbar("Producto creado exitosamente", { variant: "success" });
       }
       const updatedProductos = await getProductos();
@@ -250,7 +258,7 @@ const ProductoTable: React.FC = () => {
               .map((producto) => (
                 <TableRow key={producto.id}>
                   <TableCell>{producto.id}</TableCell>
-                  <TableCell>{producto.codigo || "N/A"}</TableCell>
+                  <TableCell>{producto.codigo}</TableCell>
                   <TableCell>{producto.nombre}</TableCell>
                   <TableCell>{producto.descripcion}</TableCell>
                   <TableCell>₡{producto.precio}</TableCell>

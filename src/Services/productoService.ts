@@ -27,6 +27,7 @@ export const getProductoById = async (id: number): Promise<Producto> => {
  * @param nombre - Nombre del producto
  * @param descripcion - Descripción del producto
  * @param precio - Precio del producto
+ * @param codigo - Código del producto (opcional)
  * @param imagenes - Array de imágenes del producto
  * @param categorias - Array de IDs de categorías asociadas
  * @returns El objeto Producto creado
@@ -36,14 +37,17 @@ export const createProducto = async (
   descripcion: string,
   precio: number,
   imagenes: { urlImagen: string }[],
-  categorias: { categoriaId: number }[]
+  categorias: { categoriaId: number }[],
+  codigo?: string,
 ): Promise<Producto> => {
+  console.log(codigo);
+  
   return apiRequest<Producto>("/productos", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ nombre, descripcion, precio, imagenes, categorias }),
+    body: JSON.stringify({ nombre, descripcion, precio, codigo, imagenes, categorias }),
   });
 };
 

@@ -26,7 +26,7 @@ interface ProductoModalProps {
     nombre: string;
     descripcion: string;
     precio: number;
-    codigo?: string;
+    codigo: string;
     imagenes: { urlImagen: string }[];
     categorias: { categoriaId: number }[];
   }) => void;
@@ -113,9 +113,9 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
       precio: /^[0-9]+(\.[0-9]{1,2})?$/.test(precio)
         ? ""
         : "El precio debe ser un número válido.",
-      codigo: codigo && codigo.trim().length > 50
-        ? "El código no debe exceder los 50 caracteres."
-        : "",
+      codigo: codigo.trim()
+        ? ""
+        : "El código es obligatorio.",
       imagenes:
         imagenes.some((img) => img.urlImagen.trim())
           ? ""
@@ -147,7 +147,7 @@ const ProductoModal: React.FC<ProductoModalProps> = ({
         nombre,
         descripcion,
         precio: parseFloat(precio),
-        codigo: codigo.trim() || undefined,
+        codigo: codigo.trim() || "sin codigo",
         imagenes: imagenes.filter((img) => img.urlImagen.trim()),
         categorias: categoriasSeleccionadas.map((id) => ({ categoriaId: id })),
       });
