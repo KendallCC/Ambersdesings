@@ -19,6 +19,7 @@ export interface Imagen {
     id: number;
     nombre: string;
     descripcion?: string;
+    codigo?:string;
     precio: number;
     imagenes: Imagen[];
     categorias: CategoriaRelacion[];

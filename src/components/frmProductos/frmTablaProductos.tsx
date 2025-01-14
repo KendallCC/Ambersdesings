@@ -54,8 +54,10 @@ const ProductoTable: React.FC = () => {
   }, [enqueueSnackbar]);
 
   useEffect(() => {
-    const filtered = productos.filter((producto) =>
-      producto.nombre.toLowerCase().includes(search.toLowerCase())
+    const filtered = productos.filter(
+      (producto) =>
+        producto.nombre.toLowerCase().includes(search.toLowerCase()) ||
+        (producto.codigo && producto.codigo.toLowerCase().includes(search.toLowerCase()))
     );
     setFilteredProductos(filtered);
   }, [search, productos]);
@@ -180,7 +182,7 @@ const ProductoTable: React.FC = () => {
         }}
       >
         <TextField
-          label="Buscar producto"
+          label="Buscar producto (nombre o código)"
           variant="outlined"
           value={search}
           onChange={handleSearchChange}
@@ -207,6 +209,15 @@ const ProductoTable: React.FC = () => {
                   onClick={() => handleRequestSort("id")}
                 >
                   ID
+                </TableSortLabel>
+              </TableCell>
+              <TableCell sortDirection={orderBy === "codigo" ? order : false}>
+                <TableSortLabel
+                  active={orderBy === "codigo"}
+                  direction={orderBy === "codigo" ? order : "asc"}
+                  onClick={() => handleRequestSort("codigo")}
+                >
+                  Código
                 </TableSortLabel>
               </TableCell>
               <TableCell sortDirection={orderBy === "nombre" ? order : false}>
@@ -239,6 +250,7 @@ const ProductoTable: React.FC = () => {
               .map((producto) => (
                 <TableRow key={producto.id}>
                   <TableCell>{producto.id}</TableCell>
+                  <TableCell>{producto.codigo || "N/A"}</TableCell>
                   <TableCell>{producto.nombre}</TableCell>
                   <TableCell>{producto.descripcion}</TableCell>
                   <TableCell>₡{producto.precio}</TableCell>
