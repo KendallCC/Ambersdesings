@@ -23,6 +23,8 @@ const ProductoDetalles: React.FC = () => {
       if (id) {
         try {
           const data = await getProductoById(parseInt(id, 10));
+          console.log(data);
+          
           setProducto(data);
         } catch (error) {
           console.error("Error al cargar el producto:", error);
@@ -81,6 +83,15 @@ const ProductoDetalles: React.FC = () => {
         sx={{ marginBottom: "1rem", color: "#333" }}
       >
         {producto.nombre}
+      </Typography>
+      <Typography
+        variant="h6"
+        fontWeight="bold"
+        textAlign="center"
+        gutterBottom
+        sx={{ marginBottom: "1rem", color: "#555" }}
+      >
+        Código: {producto.codigo || "N/A"}
       </Typography>
       <Carousel
         indicators={true}
@@ -142,7 +153,7 @@ const ProductoDetalles: React.FC = () => {
           fontSize: "1rem",
         }}
         href={`https://wa.me/62469920?text=${encodeURIComponent(
-          `Hola, estoy interesado en el producto: ${producto.nombre} (ID: ${producto.id}) con un precio de ₡${producto.precio.toFixed(
+          `Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${producto.codigo || "N/A"}) con un precio de ₡${producto.precio.toFixed(
             2
           )}.`
         )}`}

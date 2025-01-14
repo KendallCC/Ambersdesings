@@ -23,6 +23,7 @@ const ProductoDetalles = () => {
             if (id) {
                 try {
                     const data = yield getProductoById(parseInt(id, 10));
+                    console.log(data);
                     setProducto(data);
                 }
                 catch (error) {
@@ -59,7 +60,7 @@ const ProductoDetalles = () => {
             backgroundColor: "#f9f9f9",
             borderRadius: "8px",
             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-        }, children: [_jsx(Typography, { variant: "h4", fontWeight: "bold", textAlign: "center", gutterBottom: true, sx: { marginBottom: "1rem", color: "#333" }, children: producto.nombre }), _jsx(Carousel, { indicators: true, navButtonsAlwaysVisible: true, sx: { marginBottom: "1.5rem", borderRadius: "8px", overflow: "hidden" }, children: producto.imagenes.map((imagen) => (_jsx(Box, { sx: {
+        }, children: [_jsx(Typography, { variant: "h4", fontWeight: "bold", textAlign: "center", gutterBottom: true, sx: { marginBottom: "1rem", color: "#333" }, children: producto.nombre }), _jsxs(Typography, { variant: "h6", fontWeight: "bold", textAlign: "center", gutterBottom: true, sx: { marginBottom: "1rem", color: "#555" }, children: ["C\u00F3digo: ", producto.codigo || "N/A"] }), _jsx(Carousel, { indicators: true, navButtonsAlwaysVisible: true, sx: { marginBottom: "1.5rem", borderRadius: "8px", overflow: "hidden" }, children: producto.imagenes.map((imagen) => (_jsx(Box, { sx: {
                         position: "relative",
                         backgroundColor: "#f0f0f0", // Fondo para rellenar el espacio sobrante
                         display: "flex",
@@ -79,7 +80,7 @@ const ProductoDetalles = () => {
                     margin: "0 auto",
                     padding: "0.8rem 2rem",
                     fontSize: "1rem",
-                }, href: `https://wa.me/62469920?text=${encodeURIComponent(`Hola, estoy interesado en el producto: ${producto.nombre} (ID: ${producto.id}) con un precio de ₡${producto.precio.toFixed(2)}.`)}`, target: "_blank", children: "Consultar por WhatsApp" }), _jsx(Modal, { open: !!selectedImage, onClose: handleCloseModal, sx: {
+                }, href: `https://wa.me/62469920?text=${encodeURIComponent(`Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${producto.codigo || "N/A"}) con un precio de ₡${producto.precio.toFixed(2)}.`)}`, target: "_blank", children: "Consultar por WhatsApp" }), _jsx(Modal, { open: !!selectedImage, onClose: handleCloseModal, sx: {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
