@@ -51,6 +51,30 @@ export const createProducto = async (
   });
 };
 
+/**
+ * Obtener productos paginados desde la API
+ * @param page - Número de la página a solicitar
+ * @param limit - Número de productos por página
+ * @returns Objetos paginados: productos, totalProductos y totalPages
+ */
+export const getProductosPaginados = async (
+  page: number,
+  limit: number = 8
+): Promise<{
+  productos: Producto[];
+  totalProductos: number;
+  totalPages: number;
+}> => {
+  return apiRequest<{
+    productos: Producto[];
+    totalProductos: number;
+    totalPages: number;
+  }>(`/productos/paginados?page=${page}&limit=${limit}`);
+};
+
+
+
+
 
 /**
  * Obtener productos por categoría desde la API

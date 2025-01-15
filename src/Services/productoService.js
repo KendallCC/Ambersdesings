@@ -44,6 +44,15 @@ export const createProducto = (nombre, descripcion, precio, imagenes, categorias
     });
 });
 /**
+ * Obtener productos paginados desde la API
+ * @param page - Número de la página a solicitar
+ * @param limit - Número de productos por página
+ * @returns Objetos paginados: productos, totalProductos y totalPages
+ */
+export const getProductosPaginados = (page_1, ...args_1) => __awaiter(void 0, [page_1, ...args_1], void 0, function* (page, limit = 8) {
+    return apiRequest(`/productos/paginados?page=${page}&limit=${limit}`);
+});
+/**
  * Obtener productos por categoría desde la API
  * @param categoriaId - ID de la categoría
  * @returns Array de objetos Producto
