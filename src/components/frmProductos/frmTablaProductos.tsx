@@ -261,7 +261,7 @@ const ProductoTable: React.FC = () => {
                   <TableCell>{producto.codigo || "N/A"}</TableCell>
                   <TableCell>{producto.nombre}</TableCell>
                   <TableCell>{producto.descripcion}</TableCell>
-                  <TableCell>₡{producto.precio}</TableCell>
+                  <TableCell>₡{new Intl.NumberFormat("es-CR").format(producto.precio)}</TableCell>
                   <TableCell>
                     {producto.imagenes.map((imagen) => (
                       <img

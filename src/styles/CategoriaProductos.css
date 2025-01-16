@@ -1,0 +1,10 @@
+.skeleton-container {
+    margin-top: 6rem; /* Margen suficiente para evitar superposición con el navbar */
+  }
+  
+  @media (min-width: 600px) {
+    .skeleton-container {
+      margin-top: 0; /* Sin margen extra en pantallas más grandes */
+    }
+  }
+  

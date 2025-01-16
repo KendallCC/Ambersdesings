@@ -140,7 +140,7 @@ const ProductoDetalles: React.FC = () => {
           {producto.descripcion}
         </Typography>
         <Typography variant="h5" sx={{ fontWeight: "bold", color: "#2e7d32" }}>
-          Precio: ₡{producto.precio}
+          Precio: ₡{new Intl.NumberFormat("es-CR").format(producto.precio)}
         </Typography>
       </Paper>
       <Button
@@ -153,9 +153,7 @@ const ProductoDetalles: React.FC = () => {
           fontSize: "1rem",
         }}
         href={`https://wa.me/62469920?text=${encodeURIComponent(
-          `Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${producto.codigo || "N/A"}) con un precio de ₡${producto.precio.toFixed(
-            2
-          )}.`
+          `Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${producto.codigo || "N/A"}), me gustaría saber más información.`
         )}`}
         target="_blank"
       >

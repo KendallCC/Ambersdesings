@@ -75,12 +75,12 @@ const ProductoDetalles = () => {
                             objectFit: "contain", // Asegura que la imagen se ajuste sin recortarse
                             borderRadius: "8px",
                             transition: "transform 0.3s ease",
-                        }, onMouseOver: (e) => (e.currentTarget.style.transform = "scale(1.05)"), onMouseOut: (e) => (e.currentTarget.style.transform = "scale(1)") }) }, imagen.id))) }), _jsxs(Paper, { elevation: 3, sx: { padding: "1.5rem", marginBottom: "1.5rem", textAlign: "center" }, children: [_jsx(Typography, { variant: "h6", sx: { marginBottom: "1rem", fontWeight: "bold", color: "#444" }, children: "Detalles del Producto" }), _jsx(Typography, { variant: "body1", sx: { marginBottom: "0.5rem", color: "#555" }, children: producto.descripcion }), _jsxs(Typography, { variant: "h5", sx: { fontWeight: "bold", color: "#2e7d32" }, children: ["Precio: \u20A1", producto.precio] })] }), _jsx(Button, { variant: "contained", color: "success", sx: {
+                        }, onMouseOver: (e) => (e.currentTarget.style.transform = "scale(1.05)"), onMouseOut: (e) => (e.currentTarget.style.transform = "scale(1)") }) }, imagen.id))) }), _jsxs(Paper, { elevation: 3, sx: { padding: "1.5rem", marginBottom: "1.5rem", textAlign: "center" }, children: [_jsx(Typography, { variant: "h6", sx: { marginBottom: "1rem", fontWeight: "bold", color: "#444" }, children: "Detalles del Producto" }), _jsx(Typography, { variant: "body1", sx: { marginBottom: "0.5rem", color: "#555" }, children: producto.descripcion }), _jsxs(Typography, { variant: "h5", sx: { fontWeight: "bold", color: "#2e7d32" }, children: ["Precio: \u20A1", new Intl.NumberFormat("es-CR").format(producto.precio)] })] }), _jsx(Button, { variant: "contained", color: "success", sx: {
                     display: "block",
                     margin: "0 auto",
                     padding: "0.8rem 2rem",
                     fontSize: "1rem",
-                }, href: `https://wa.me/62469920?text=${encodeURIComponent(`Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${producto.codigo || "N/A"}) con un precio de ₡${producto.precio.toFixed(2)}.`)}`, target: "_blank", children: "Consultar por WhatsApp" }), _jsx(Modal, { open: !!selectedImage, onClose: handleCloseModal, sx: {
+                }, href: `https://wa.me/62469920?text=${encodeURIComponent(`Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${producto.codigo || "N/A"}), me gustaría saber más información.`)}`, target: "_blank", children: "Consultar por WhatsApp" }), _jsx(Modal, { open: !!selectedImage, onClose: handleCloseModal, sx: {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
