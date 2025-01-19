@@ -52,6 +52,9 @@ export const createProducto = (nombre, descripcion, precio, imagenes, categorias
 export const getProductosPaginados = (page_1, ...args_1) => __awaiter(void 0, [page_1, ...args_1], void 0, function* (page, limit = 8) {
     return apiRequest(`/productos/paginados?page=${page}&limit=${limit}`);
 });
+export const getProductosPorCategoriaPaginados = (categoriaId_1, page_1, ...args_1) => __awaiter(void 0, [categoriaId_1, page_1, ...args_1], void 0, function* (categoriaId, page, limit = 8) {
+    return apiRequest(`/productos/categoria/${categoriaId}/paginados?page=${page}&limit=${limit}`);
+});
 /**
  * Obtener productos por categoría desde la API
  * @param categoriaId - ID de la categoría

@@ -11,11 +11,11 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography, Grid, Card, CardMedia, CardContent, Button, Pagination, } from "@mui/material";
-import { getProductosPaginados } from "../../Services/productoService";
+import { getProductosPorCategoriaPaginados } from "../../Services/productoService";
 import { Skeleton } from "@mui/material";
-import "../../styles/CategoriaProductos.css"; // Importamos el archivo CSS
+import "../../styles/CategoriaProductos.css";
 const CategoriaProductos = () => {
-    const { id } = useParams();
+    const { id } = useParams(); // ID de la categoría
     const [productosPorPagina, setProductosPorPagina] = useState({});
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -23,15 +23,23 @@ const CategoriaProductos = () => {
     const rowsPerPage = 8;
     const navigate = useNavigate();
     useEffect(() => {
+        // Resetear el estado cuando cambia la categoría (id)
+        setProductosPorPagina({});
+        setPage(1); // Reinicia a la primera página cuando cambie la categoría
+        setTotalPages(0);
+    }, [id]);
+    useEffect(() => {
         const fetchProductos = (currentPage) => __awaiter(void 0, void 0, void 0, function* () {
             if (productosPorPagina[currentPage]) {
                 return;
             }
             setLoading(true);
             try {
-                const { productos, totalPages } = yield getProductosPaginados(currentPage, rowsPerPage);
-                setProductosPorPagina((prev) => (Object.assign(Object.assign({}, prev), { [currentPage]: productos })));
-                setTotalPages(totalPages);
+                if (id) {
+                    const { productos, totalPages } = yield getProductosPorCategoriaPaginados(id, currentPage, rowsPerPage);
+                    setProductosPorPagina((prev) => (Object.assign(Object.assign({}, prev), { [currentPage]: productos })));
+                    setTotalPages(totalPages);
+                }
             }
             catch (error) {
                 console.error("Error al cargar productos:", error);
@@ -40,9 +48,7 @@ const CategoriaProductos = () => {
                 setLoading(false);
             }
         });
-        if (id) {
-            fetchProductos(page);
-        }
+        fetchProductos(page);
     }, [id, page, productosPorPagina]);
     const handlePageChange = (event, value) => {
         setPage(value);
@@ -51,7 +57,7 @@ const CategoriaProductos = () => {
         navigate(`/producto/${productoId}`);
     };
     const productos = productosPorPagina[page] || [];
-    return (_jsxs(Box, { sx: { padding: "2rem" }, children: [_jsx(Typography, { variant: "h4", gutterBottom: true, textAlign: "center", fontWeight: "bold", sx: { marginBottom: "1rem" }, children: "Listado de productos" }), loading ? (_jsx(Box, { className: "skeleton-container", children: _jsx(Grid, { container: true, spacing: 2, justifyContent: "center", children: Array.from(new Array(rowsPerPage)).map((_, index) => (_jsxs(Grid, { item: true, xs: 12, sm: 6, md: 3, children: [_jsx(Skeleton, { variant: "rectangular", animation: "wave", sx: {
+    return (_jsxs(Box, { sx: { padding: "2rem" }, children: [_jsx(Typography, { variant: "h4", gutterBottom: true, textAlign: "center", fontWeight: "bold", sx: { marginBottom: "1rem" }, children: "Productos de la categor\u00EDa" }), loading ? (_jsx(Box, { className: "skeleton-container", children: _jsx(Grid, { container: true, spacing: 2, justifyContent: "center", children: Array.from(new Array(rowsPerPage)).map((_, index) => (_jsxs(Grid, { item: true, xs: 12, sm: 6, md: 3, children: [_jsx(Skeleton, { variant: "rectangular", animation: "wave", sx: {
                                     width: "100%",
                                     height: 200,
                                     borderRadius: "8px",

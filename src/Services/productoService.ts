@@ -73,7 +73,21 @@ export const getProductosPaginados = async (
 };
 
 
-
+export const getProductosPorCategoriaPaginados = async (
+  categoriaId: string,
+  page: number,
+  limit: number = 8
+): Promise<{
+  productos: Producto[];
+  totalProductos: number;
+  totalPages: number;
+}> => {
+  return apiRequest<{
+    productos: Producto[];
+    totalProductos: number;
+    totalPages: number;
+  }>(`/productos/categoria/${categoriaId}/paginados?page=${page}&limit=${limit}`);
+};
 
 
 /**

@@ -15,10 +15,15 @@ import {
   CircularProgress,
   Typography,
   Button,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
 import { getProductos, createProducto, updateProducto, deleteProducto } from "../../Services/productoService";
+import { getCategorias } from "../../Services/categoriaService";
 import { Producto } from "../../interfaces/producto";
+import { Categoria } from "../../interfaces/Categoria";
 import { useSnackbar } from "notistack";
 import ProductoModal from "./ProductoModal";
 
@@ -28,7 +33,9 @@ const ProductoTable: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [search, setSearch] = useState("");
+  const [selectedCategoria, setSelectedCategoria] = useState<number | "">("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState<Order>("asc");
@@ -50,17 +57,39 @@ const ProductoTable: React.FC = () => {
       }
     };
 
+    const fetchCategorias = async () => {
+      try {
+        const data = await getCategorias();
+        setCategorias(data);
+      } catch (error) {
+        enqueueSnackbar("Error al cargar las categorías", { variant: "error" });
+      }
+    };
+
     fetchProductos();
+    fetchCategorias();
   }, [enqueueSnackbar]);
 
   useEffect(() => {
-    const filtered = productos.filter(
-      (producto) =>
-        producto.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        (producto.codigo?.toLowerCase().includes(search.toLowerCase()))
-    );
+    let filtered = productos;
+
+    if (search) {
+      filtered = filtered.filter(
+        (producto) =>
+          producto.nombre.toLowerCase().includes(search.toLowerCase()) ||
+          (producto.codigo?.toLowerCase().includes(search.toLowerCase())) ||
+          producto.id.toString().includes(search)
+      );
+    }
+
+    if (selectedCategoria) {
+      filtered = filtered.filter((producto) =>
+        producto.categorias.some((categoria) => categoria.categoriaId === selectedCategoria)
+      );
+    }
+
     setFilteredProductos(filtered);
-  }, [search, productos]);
+  }, [search, selectedCategoria, productos]);
 
   const handleRequestSort = (property: keyof Producto) => {
     const isAscending = orderBy === property && order === "asc";
@@ -101,14 +130,19 @@ const ProductoTable: React.FC = () => {
     setSearch(event.target.value);
   };
 
-  const handleOpenModal = (producto?: Producto) => {
-    setCurrentProducto(producto || null);
+  const handleCategoriaChange = (event: SelectChangeEvent<number | "">) => {
+    const value = event.target.value;
+    setSelectedCategoria(value === "" ? "" : Number(value));
+  };
+
+  const handleAddProducto = () => {
+    setCurrentProducto(null); // Asegura que no haya un producto seleccionado
     setOpenModal(true);
   };
 
-  const handleCloseModal = () => {
-    setCurrentProducto(null); // Resetea el estado del producto actual
-    setOpenModal(false);
+  const handleEditProducto = (producto: Producto) => {
+    setCurrentProducto(producto);
+    setOpenModal(true);
   };
 
   const handleSaveProducto = async (data: {
@@ -121,11 +155,9 @@ const ProductoTable: React.FC = () => {
   }) => {
     try {
       if (currentProducto) {
-        // Editar producto
         await updateProducto(currentProducto.id, data);
         enqueueSnackbar("Producto actualizado exitosamente", { variant: "success" });
       } else {
-        // Crear producto
         await createProducto(
           data.nombre,
           data.descripcion,
@@ -139,24 +171,9 @@ const ProductoTable: React.FC = () => {
       const updatedProductos = await getProductos();
       setProductos(updatedProductos);
       setFilteredProductos(updatedProductos);
+      setOpenModal(false);
     } catch (error) {
       enqueueSnackbar("Error al guardar el producto", { variant: "error" });
-    } finally {
-      handleCloseModal();
-    }
-  };
-
-  const handleDeleteProducto = async (id: number) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este producto?")) {
-      try {
-        await deleteProducto(id);
-        enqueueSnackbar("Producto eliminado exitosamente", { variant: "success" });
-        const updatedProductos = productos.filter((producto) => producto.id !== id);
-        setProductos(updatedProductos);
-        setFilteredProductos(updatedProductos);
-      } catch (error) {
-        enqueueSnackbar("Error al eliminar el producto", { variant: "error" });
-      }
     }
   };
 
@@ -180,7 +197,6 @@ const ProductoTable: React.FC = () => {
 
   return (
     <Box sx={{ padding: "1rem" }}>
-      {/* Campo de búsqueda */}
       <Box
         sx={{
           display: "flex",
@@ -190,22 +206,32 @@ const ProductoTable: React.FC = () => {
         }}
       >
         <TextField
-          label="Buscar producto (nombre o código)"
+          label="Buscar producto (ID, nombre o código)"
           variant="outlined"
           value={search}
           onChange={handleSearchChange}
           sx={{ flex: 1, marginRight: "1rem" }}
         />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => handleOpenModal()}
+        <Select
+          value={selectedCategoria}
+          onChange={handleCategoriaChange}
+          displayEmpty
+          sx={{ minWidth: 200, marginRight: "1rem" }}
         >
+          <MenuItem value="">
+            <em>Todas las categorías</em>
+          </MenuItem>
+          {categorias.map((categoria) => (
+            <MenuItem key={categoria.id} value={categoria.id}>
+              {categoria.nombre}
+            </MenuItem>
+          ))}
+        </Select>
+        <Button variant="contained" color="primary" onClick={handleAddProducto}>
           Agregar Producto
         </Button>
       </Box>
 
-      {/* Tabla de productos */}
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
@@ -261,7 +287,9 @@ const ProductoTable: React.FC = () => {
                   <TableCell>{producto.codigo || "N/A"}</TableCell>
                   <TableCell>{producto.nombre}</TableCell>
                   <TableCell>{producto.descripcion}</TableCell>
-                  <TableCell>₡{new Intl.NumberFormat("es-CR").format(producto.precio)}</TableCell>
+                  <TableCell>
+                    ₡{new Intl.NumberFormat("es-CR").format(producto.precio)}
+                  </TableCell>
                   <TableCell>
                     {producto.imagenes.map((imagen) => (
                       <img
@@ -282,13 +310,13 @@ const ProductoTable: React.FC = () => {
                   <TableCell>
                     <IconButton
                       color="primary"
-                      onClick={() => handleOpenModal(producto)}
+                      onClick={() => handleEditProducto(producto)}
                     >
                       <Edit />
                     </IconButton>
                     <IconButton
                       color="secondary"
-                      onClick={() => handleDeleteProducto(producto.id)}
+                      onClick={() => deleteProducto(producto.id)}
                     >
                       <Delete />
                     </IconButton>
@@ -312,10 +340,9 @@ const ProductoTable: React.FC = () => {
         />
       </TableContainer>
 
-      {/* Modal para agregar/editar producto */}
       <ProductoModal
         open={openModal}
-        onClose={handleCloseModal}
+        onClose={() => setOpenModal(false)}
         onSave={handleSaveProducto}
         producto={currentProducto}
       />

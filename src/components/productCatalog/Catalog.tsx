@@ -10,13 +10,13 @@ import {
   Button,
   Pagination,
 } from "@mui/material";
-import { getProductosPaginados } from "../../Services/productoService";
+import { getProductosPorCategoriaPaginados } from "../../Services/productoService";
 import { Producto } from "../../interfaces/producto";
 import { Skeleton } from "@mui/material";
-import "../../styles/CategoriaProductos.css"; // Importamos el archivo CSS
+import "../../styles/CategoriaProductos.css";
 
 const CategoriaProductos: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id: string }>(); // ID de la categoría
   const [productosPorPagina, setProductosPorPagina] = useState<{
     [page: number]: Producto[];
   }>({});
@@ -27,6 +27,13 @@ const CategoriaProductos: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Resetear el estado cuando cambia la categoría (id)
+    setProductosPorPagina({});
+    setPage(1); // Reinicia a la primera página cuando cambie la categoría
+    setTotalPages(0);
+  }, [id]);
+
+  useEffect(() => {
     const fetchProductos = async (currentPage: number) => {
       if (productosPorPagina[currentPage]) {
         return;
@@ -34,9 +41,15 @@ const CategoriaProductos: React.FC = () => {
 
       setLoading(true);
       try {
-        const { productos, totalPages } = await getProductosPaginados(currentPage, rowsPerPage);
-        setProductosPorPagina((prev) => ({ ...prev, [currentPage]: productos }));
-        setTotalPages(totalPages);
+        if (id) {
+          const { productos, totalPages } = await getProductosPorCategoriaPaginados(
+            id,
+            currentPage,
+            rowsPerPage
+          );
+          setProductosPorPagina((prev) => ({ ...prev, [currentPage]: productos }));
+          setTotalPages(totalPages);
+        }
       } catch (error) {
         console.error("Error al cargar productos:", error);
       } finally {
@@ -44,9 +57,7 @@ const CategoriaProductos: React.FC = () => {
       }
     };
 
-    if (id) {
-      fetchProductos(page);
-    }
+    fetchProductos(page);
   }, [id, page, productosPorPagina]);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
@@ -68,7 +79,7 @@ const CategoriaProductos: React.FC = () => {
         fontWeight="bold"
         sx={{ marginBottom: "1rem" }}
       >
-        Listado de productos
+        Productos de la categoría
       </Typography>
       {loading ? (
         <Box className="skeleton-container">
