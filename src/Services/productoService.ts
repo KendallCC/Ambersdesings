@@ -6,9 +6,34 @@ import { apiRequest } from "./ApiRequest";
  * Fetch all categories from the API
  * @returns Array of products objects
  */
-export const getProductos = async (): Promise<Producto[]> => {
-  return apiRequest<Producto[]>('/productos');
+export const getProductos = async (
+  page: number = 1,
+  limit: number = 10,
+  search: string = "",
+  categoriaId?: number
+): Promise<{
+  productos: Producto[];
+  totalProductos: number;
+  totalPages: number;
+}> => {
+  const query = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+    search,
+  });
+
+  // Agregar categoriaId a los parámetros de la consulta si está definido
+  if (categoriaId) {
+    query.append("categoriaId", categoriaId.toString());
+  }
+
+  return apiRequest<{
+    productos: Producto[];
+    totalProductos: number;
+    totalPages: number;
+  }>(`/productos?${query.toString()}`);
 };
+
 
 
 

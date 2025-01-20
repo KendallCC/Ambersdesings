@@ -19,7 +19,7 @@ const routes = [
     element: <NotFound />, // JSX correcto
   },
   {
-    path: "/categorias/table",
+    path: "/categoria/table",
     element: <CategoriaTable/>, // JSX correcto
   },
   {

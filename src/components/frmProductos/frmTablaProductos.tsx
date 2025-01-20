@@ -18,23 +18,34 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import { Edit, Delete } from "@mui/icons-material";
-import { getProductos, createProducto, updateProducto, deleteProducto } from "../../Services/productoService";
+import {
+  getProductos,
+  createProducto,
+  updateProducto,
+  deleteProducto,
+} from "../../Services/productoService";
 import { getCategorias } from "../../Services/categoriaService";
 import { Producto } from "../../interfaces/producto";
 import { Categoria } from "../../interfaces/Categoria";
 import { useSnackbar } from "notistack";
 import ProductoModal from "./ProductoModal";
-
+import { useDebounce } from "../hooks/useDebounce";
 type Order = "asc" | "desc";
 
 const ProductoTable: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
+  const [totalProductos, setTotalProductos] = useState(0);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
   const [selectedCategoria, setSelectedCategoria] = useState<number | "">("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -44,19 +55,33 @@ const ProductoTable: React.FC = () => {
   const [openModal, setOpenModal] = useState(false);
   const [currentProducto, setCurrentProducto] = useState<Producto | null>(null);
 
-  useEffect(() => {
-    const fetchProductos = async () => {
-      try {
-        const data = await getProductos();
-        setProductos(data);
-        setFilteredProductos(data);
-      } catch (error) {
-        enqueueSnackbar("Error al cargar los productos", { variant: "error" });
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Estados para el modal de confirmación
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [productoToDelete, setProductoToDelete] = useState<Producto | null>(null);
 
+  const fetchProductos = async () => {
+    setLoading(true);
+    try {
+      const { productos, totalProductos } = await getProductos(
+        page + 1,
+        rowsPerPage,
+        debouncedSearch,
+        selectedCategoria === "" ? undefined : Number(selectedCategoria) // Filtra por categoría si está seleccionada
+      );
+      setProductos(productos);
+      setTotalProductos(totalProductos);
+    } catch (error) {
+      enqueueSnackbar("Error al cargar los productos", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductos();
+  }, [page, rowsPerPage, debouncedSearch]);
+
+  useEffect(() => {
     const fetchCategorias = async () => {
       try {
         const data = await getCategorias();
@@ -66,54 +91,14 @@ const ProductoTable: React.FC = () => {
       }
     };
 
-    fetchProductos();
     fetchCategorias();
   }, [enqueueSnackbar]);
-
-  useEffect(() => {
-    let filtered = productos;
-
-    if (search) {
-      filtered = filtered.filter(
-        (producto) =>
-          producto.nombre.toLowerCase().includes(search.toLowerCase()) ||
-          (producto.codigo?.toLowerCase().includes(search.toLowerCase())) ||
-          producto.id.toString().includes(search)
-      );
-    }
-
-    if (selectedCategoria) {
-      filtered = filtered.filter((producto) =>
-        producto.categorias.some((categoria) => categoria.categoriaId === selectedCategoria)
-      );
-    }
-
-    setFilteredProductos(filtered);
-  }, [search, selectedCategoria, productos]);
 
   const handleRequestSort = (property: keyof Producto) => {
     const isAscending = orderBy === property && order === "asc";
     setOrder(isAscending ? "desc" : "asc");
     setOrderBy(property);
   };
-
-  const sortedProductos = filteredProductos.sort((a, b) => {
-    if (!orderBy) return 0;
-    const aValue = a[orderBy];
-    const bValue = b[orderBy];
-
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return order === "asc"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
-
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return order === "asc" ? aValue - bValue : bValue - aValue;
-    }
-
-    return 0;
-  });
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -128,15 +113,33 @@ const ProductoTable: React.FC = () => {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
+    setPage(0);
   };
 
-  const handleCategoriaChange = (event: SelectChangeEvent<number | "">) => {
+  const handleCategoriaChange = async (event: SelectChangeEvent<number | "">) => {
     const value = event.target.value;
     setSelectedCategoria(value === "" ? "" : Number(value));
+    setPage(0);
+  
+    setLoading(true);
+    try {
+      const { productos, totalProductos } = await getProductos(
+        1, // Resetea a la primera página
+        rowsPerPage,
+        search,
+        value === "" ? undefined : Number(value) // Si no hay categoría seleccionada, no se pasa categoriaId
+      );
+      setProductos(productos);
+      setTotalProductos(totalProductos);
+    } catch (error) {
+      enqueueSnackbar("Error al cargar productos por categoría", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddProducto = () => {
-    setCurrentProducto(null); // Asegura que no haya un producto seleccionado
+    setCurrentProducto(null);
     setOpenModal(true);
   };
 
@@ -168,12 +171,34 @@ const ProductoTable: React.FC = () => {
         );
         enqueueSnackbar("Producto creado exitosamente", { variant: "success" });
       }
-      const updatedProductos = await getProductos();
-      setProductos(updatedProductos);
-      setFilteredProductos(updatedProductos);
+      fetchProductos();
       setOpenModal(false);
     } catch (error) {
       enqueueSnackbar("Error al guardar el producto", { variant: "error" });
+    }
+  };
+
+  const handleOpenConfirm = (producto: Producto) => {
+    setProductoToDelete(producto);
+    setOpenConfirm(true);
+  };
+
+  const handleCloseConfirm = () => {
+    setProductoToDelete(null);
+    setOpenConfirm(false);
+  };
+
+  const handleDeleteProducto = async () => {
+    try {
+      if (productoToDelete) {
+        await deleteProducto(productoToDelete.id);
+        enqueueSnackbar("Producto eliminado exitosamente", { variant: "success" });
+        fetchProductos();
+      }
+    } catch (error) {
+      enqueueSnackbar("Error al eliminar el producto", { variant: "error" });
+    } finally {
+      handleCloseConfirm();
     }
   };
 
@@ -279,56 +304,54 @@ const ProductoTable: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedProductos
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((producto) => (
-                <TableRow key={producto.id}>
-                  <TableCell>{producto.id}</TableCell>
-                  <TableCell>{producto.codigo || "N/A"}</TableCell>
-                  <TableCell>{producto.nombre}</TableCell>
-                  <TableCell>{producto.descripcion}</TableCell>
-                  <TableCell>
-                    ₡{new Intl.NumberFormat("es-CR").format(producto.precio)}
-                  </TableCell>
-                  <TableCell>
-                    {producto.imagenes.map((imagen) => (
-                      <img
-                        key={imagen.id}
-                        src={imagen.urlImagen}
-                        alt={producto.nombre}
-                        style={{ width: "50px", height: "50px", marginRight: "5px" }}
-                      />
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    {producto.categorias.map((categoria) => (
-                      <Typography key={categoria.categoriaId}>
-                        {categoria.categoria.nombre}
-                      </Typography>
-                    ))}
-                  </TableCell>
-                  <TableCell>
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleEditProducto(producto)}
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      color="secondary"
-                      onClick={() => deleteProducto(producto.id)}
-                    >
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
+            {productos.map((producto) => (
+              <TableRow key={producto.id}>
+                <TableCell>{producto.id}</TableCell>
+                <TableCell>{producto.codigo || "N/A"}</TableCell>
+                <TableCell>{producto.nombre}</TableCell>
+                <TableCell>{producto.descripcion}</TableCell>
+                <TableCell>
+                  ₡{new Intl.NumberFormat("es-CR").format(producto.precio)}
+                </TableCell>
+                <TableCell>
+                  {producto.imagenes.map((imagen) => (
+                    <img
+                      key={imagen.id}
+                      src={imagen.urlImagen}
+                      alt={producto.nombre}
+                      style={{ width: "50px", height: "50px", marginRight: "5px" }}
+                    />
+                  ))}
+                </TableCell>
+                <TableCell>
+                  {producto.categorias.map((categoria) => (
+                    <Typography key={categoria.categoriaId}>
+                      {categoria.categoria.nombre}
+                    </Typography>
+                  ))}
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleEditProducto(producto)}
+                  >
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    color="secondary"
+                    onClick={() => handleOpenConfirm(producto)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
         <TablePagination
           rowsPerPageOptions={[5, 10, 15]}
           component="div"
-          count={filteredProductos.length}
+          count={totalProductos}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -346,6 +369,33 @@ const ProductoTable: React.FC = () => {
         onSave={handleSaveProducto}
         producto={currentProducto}
       />
+
+      <Dialog
+        open={openConfirm}
+        onClose={handleCloseConfirm}
+        aria-labelledby="confirm-delete-title"
+        aria-describedby="confirm-delete-description"
+      >
+        <DialogTitle id="confirm-delete-title">Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="confirm-delete-description">
+            ¿Estás seguro de que deseas eliminar el producto "
+            {productoToDelete?.nombre}"? Esta acción no se puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirm} color="primary">
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleDeleteProducto}
+            color="secondary"
+            variant="contained"
+          >
+            Confirmar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
