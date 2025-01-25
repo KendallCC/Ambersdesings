@@ -45,7 +45,8 @@ const categories = [
     nombre: "Pulseras",
     subcategorias: [
       { id: 20, nombre: "Pulseras 14 de Febrero" },
-      // { id: 21, nombre: "Pulseras Personalizadas" }, por hacer
+      { id: 23, nombre: "Pulseras Macrame para Compartir" },
+      { id: 24, nombre: "Pulseras Macrame Personalizadas" },  
     ],
   },
   {
