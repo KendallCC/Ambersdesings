@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -15,8 +15,6 @@ import Divider from "@mui/material/Divider";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
-import { getCategorias } from "../Services/categoriaService"; // Función para obtener las categorías
-import { Categoria } from "../interfaces/Categoria"; // Interfaz de categoría
 
 const drawerWidth = 240;
 
@@ -25,49 +23,70 @@ const navItems = [
   { label: "Acerca de nosotros", path: "/about" },
 ];
 
+const categories = [
+  {
+    id: 1,
+    nombre: "Bolsos",
+    subcategorias: [
+      { id: 13, nombre: "Bolsos Cruzados" },
+      { id: 14, nombre: "Bolsos Casuales" },
+    ],
+  },
+  {
+    id: 2,
+    nombre: "Salveques",
+    subcategorias: [
+      { id: 16, nombre: "Salveques de Hombre" },
+      { id: 17, nombre: "Salveques de Mujer" },
+    ],
+  },
+  {
+    id: 3,
+    nombre: "Pulseras",
+    subcategorias: [
+      { id: 20, nombre: "Pulseras 14 de Febrero" },
+      // { id: 21, nombre: "Pulseras Personalizadas" }, por hacer
+    ],
+  },
+  {
+    id: 4,
+    nombre: "Otros",
+    subcategorias: [
+      { id: 18, nombre: "Mochila de Viaje" },
+      { id: 19, nombre: "Relojes" }
+    ],
+  },
+];
+
 const Navbar: React.FC = () => {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState<null | HTMLElement>(null);
-  const [categorias, setCategorias] = useState<Categoria[]>([]); // Estado para las categorías dinámicas
-
-  // Obtener categorías dinámicamente al montar el componente
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      try {
-        const data = await getCategorias(); // Obtén las categorías desde el servicio
-        setCategorias(data); // Actualiza el estado con las categorías obtenidas
-      } catch (error) {
-        console.error("Error al obtener las categorías:", error);
-      }
-    };
-
-    fetchCategorias();
-  }, []);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [subMenuAnchorEl, setSubMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedCategory, setSelectedCategory] = useState<any[]>([]);
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMainMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = () => {
+  const handleMainMenuClose = () => {
     setAnchorEl(null);
+    setSubMenuAnchorEl(null);
+    setSelectedCategory([]);
+    setMobileOpen(false); // Cierra el menú móvil
   };
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMenuAnchor(event.currentTarget);
+  const handleSubMenuOpen = (event: React.MouseEvent<HTMLElement>, subcategories: any[]) => {
+    setSubMenuAnchorEl(event.currentTarget);
+    setSelectedCategory(subcategories);
   };
 
-  const handleMobileMenuClose = () => {
-    setMobileMenuAnchor(null);
-  };
-
-  const handleCategorySelect = () => {
-    setMobileMenuAnchor(null); // Cierra el menú desplegable
-    setMobileOpen(false); // Cierra el Drawer
+  const handleSubMenuClose = () => {
+    setSubMenuAnchorEl(null);
+    setMobileOpen(false); // Cierra el menú móvil
   };
 
   const drawer = (
@@ -75,7 +94,7 @@ const Navbar: React.FC = () => {
       <Divider />
       <List>
         {navItems.map((item) => (
-          <ListItem key={item.label} disablePadding >
+          <ListItem key={item.label} disablePadding>
             <ListItemButton component={Link} to={item.path} onClick={() => setMobileOpen(false)}>
               <ListItemText
                 primary={
@@ -87,38 +106,22 @@ const Navbar: React.FC = () => {
             </ListItemButton>
           </ListItem>
         ))}
-        <Divider />
-        {/* Categorías como Dropdown en Móvil */}
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton onClick={handleMobileMenuOpen}>
-              <ListItemText
-                primary={
-                  <Typography sx={{ fontWeight: "bold", textDecoration: "underline" }}>
-                    Categorías
-                  </Typography>
-                }
-              />
-            </ListItemButton>
-          </ListItem>
-        </List>
       </List>
-      <Menu
-        anchorEl={mobileMenuAnchor}
-        open={Boolean(mobileMenuAnchor)}
-        onClose={handleMobileMenuClose}
-      >
-        {categorias.map((categoria) => (
-          <MenuItem
-            key={categoria.id}
-            component={Link}
-            to={`/categorias/${categoria.id}`} // Ajusta la ruta según el id de la categoría
-            onClick={handleCategorySelect}
-          >
-            {categoria.nombre}
-          </MenuItem>
-        ))}
-      </Menu>
+      <Divider />
+      {/* Categorías como Dropdown en Móvil */}
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton onClick={handleMainMenuOpen}>
+            <ListItemText
+              primary={
+                <Typography sx={{ fontWeight: "bold", textDecoration: "underline" }}>
+                  Categorías
+                </Typography>
+              }
+            />
+          </ListItemButton>
+        </ListItem>
+      </List>
     </Box>
   );
 
@@ -162,8 +165,8 @@ const Navbar: React.FC = () => {
               textAlign: "center",
               display: { xs: "block", sm: "none" },
               color: "black",
-              fontWeight:"bolder",
-              textDecoration: "underline"
+              fontWeight: "bolder",
+              textDecoration: "underline",
             }}
           >
             Amber Designs
@@ -181,34 +184,53 @@ const Navbar: React.FC = () => {
                 {item.label}
               </Button>
             ))}
-            {/* Categorías como Dropdown en Escritorio */}
             <Button
-              onClick={handleMenuOpen}
+              onClick={handleMainMenuOpen}
               sx={{ color: "black", fontWeight: "bold", textDecoration: "underline" }}
-              aria-controls="dropdown-menu"
+              aria-controls="category-menu"
               aria-haspopup="true"
             >
               Categorías
             </Button>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              {categorias.map((categoria) => (
-                <MenuItem
-                  key={categoria.id}
-                  component={Link}
-                  to={`/categorias/${categoria.id}`}
-                  onClick={handleMenuClose}
-                >
-                  {categoria.nombre}
-                </MenuItem>
-              ))}
-            </Menu>
           </Box>
         </Toolbar>
       </AppBar>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMainMenuClose}
+        anchorOrigin={{ horizontal: "left", vertical: "bottom" }}
+        transformOrigin={{ horizontal: "left", vertical: "top" }}
+      >
+        {categories.map((category) => (
+          <MenuItem
+            key={category.id}
+            onClick={(e) => handleSubMenuOpen(e, category.subcategorias)}
+          >
+            {category.nombre}
+          </MenuItem>
+        ))}
+      </Menu>
+
+      <Menu
+        anchorEl={subMenuAnchorEl}
+        open={Boolean(subMenuAnchorEl)}
+        onClose={handleSubMenuClose}
+        anchorOrigin={{ horizontal: "right", vertical: "top" }}
+        transformOrigin={{ horizontal: "left", vertical: "top" }}
+      >
+        {selectedCategory.map((subcategory) => (
+          <MenuItem
+            key={subcategory.id}
+            component={Link}
+            to={`/categorias/${subcategory.id}`}
+            onClick={handleMainMenuClose}
+          >
+            {subcategory.nombre}
+          </MenuItem>
+        ))}
+      </Menu>
 
       <Drawer
         variant="temporary"
