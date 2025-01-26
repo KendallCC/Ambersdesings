@@ -54,7 +54,8 @@ const categories = [
     nombre: "Otros",
     subcategorias: [
       { id: 18, nombre: "Mochila de Viaje" },
-      { id: 19, nombre: "Relojes" }
+      { id: 19, nombre: "Relojes" },
+      { id: 25, nombre: "Acero" }
     ],
   },
 ];
