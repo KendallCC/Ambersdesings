@@ -23,6 +23,7 @@ const CategoriaProductos: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [categoriaNombre, setCategoriaNombre] = useState<string | null>(null); // Nuevo estado para el nombre de la categoría
   const rowsPerPage = 8;
   const navigate = useNavigate();
 
@@ -31,6 +32,7 @@ const CategoriaProductos: React.FC = () => {
     setProductosPorPagina({});
     setPage(1); // Reinicia a la primera página cuando cambie la categoría
     setTotalPages(0);
+    setCategoriaNombre(null); // Reinicia el nombre de la categoría
   }, [id]);
 
   useEffect(() => {
@@ -47,11 +49,20 @@ const CategoriaProductos: React.FC = () => {
             currentPage,
             rowsPerPage
           );
+
           setProductosPorPagina((prev) => ({ ...prev, [currentPage]: productos }));
           setTotalPages(totalPages);
+
+          // Si hay productos, obtener el nombre de la categoría desde el primer producto
+          if (productos.length > 0) {
+            setCategoriaNombre(  productos[0].categorias[0]?.categoria?.nombre || "Categoría no encontrada");
+          } else {
+            setCategoriaNombre("Categoría no encontrada");
+          }
         }
       } catch (error) {
         console.error("Error al cargar productos:", error);
+        setCategoriaNombre("Categoría no encontrada");
       } finally {
         setLoading(false);
       }
@@ -79,7 +90,7 @@ const CategoriaProductos: React.FC = () => {
         fontWeight="bold"
         sx={{ marginBottom: "1rem" }}
       >
-        Productos de la categoría
+        {categoriaNombre || "Cargando categoría..."}
       </Typography>
       {loading ? (
         <Box className="skeleton-container">

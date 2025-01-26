@@ -56,7 +56,7 @@ const categories = [
       { id: 18, nombre: "Mochila de Viaje" },
       { id: 19, nombre: "Relojes" },
       { id: 25, nombre: "Acero" },
-      { id: 26, nombre: "Collares de Mariposa" },
+      { id: 26, nombre: "Collares y Pulseras de Mariposa" },
     ],
   },
 ];
