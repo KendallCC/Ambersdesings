@@ -1,7 +1,7 @@
-import { Categoria } from "../interfaces/Categoria";
+
 import { Producto } from "../interfaces/producto";
 import { apiRequest } from "./ApiRequest";
-
+import socket from "./socket";
 /**
  * Fetch all categories from the API
  * @returns Array of products objects
@@ -63,16 +63,12 @@ export const createProducto = async (
   precio: number,
   imagenes: { urlImagen: string }[],
   categorias: { categoriaId: number }[],
-  codigo?: string,
+  codigo?: string
 ): Promise<Producto> => {
-  console.log(codigo);
-  
   return apiRequest<Producto>("/productos", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ nombre, descripcion, precio, codigo, imagenes, categorias }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, descripcion, precio, codigo, imagenes, categorias, socketId: socket.id }),
   });
 };
 
@@ -144,10 +140,8 @@ export const updateProducto = async (
 ): Promise<Producto> => {
   return apiRequest<Producto>(`/productos/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...data, socketId: socket.id }),
   });
 };
 
@@ -160,5 +154,7 @@ export const updateProducto = async (
 export const deleteProducto = async (id: number): Promise<{ message: string }> => {
   return apiRequest<{ message: string }>(`/productos/${id}`, {
     method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ socketId: socket.id }),
   });
 };

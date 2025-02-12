@@ -23,7 +23,7 @@ const ProductoDetalles: React.FC = () => {
       if (id) {
         try {
           const data = await getProductoById(parseInt(id, 10));
-          console.log(data);
+          
           
           setProducto(data);
         } catch (error) {
