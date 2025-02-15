@@ -23,8 +23,6 @@ const ProductoDetalles: React.FC = () => {
       if (id) {
         try {
           const data = await getProductoById(parseInt(id, 10));
-          
-          
           setProducto(data);
         } catch (error) {
           console.error("Error al cargar el producto:", error);
@@ -63,6 +61,15 @@ const ProductoDetalles: React.FC = () => {
   if (!producto) {
     return <Typography>No se encontró el producto.</Typography>;
   }
+
+  // Construimos el mensaje para WhatsApp incluyendo la primera imagen, si existe
+  const mensaje = `Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${
+    producto.codigo || "N/A"
+  }). ${
+    producto.imagenes.length > 0
+      ? `Imagen: ${producto.imagenes[0].urlImagen}.`
+      : ""
+  } Me gustaría saber más información.`;
 
   return (
     <Box
@@ -123,23 +130,40 @@ const ProductoDetalles: React.FC = () => {
                 borderRadius: "8px",
                 transition: "transform 0.3s ease",
               }}
-              onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-              onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.transform = "scale(1.05)")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.transform = "scale(1)")
+              }
             />
           </Box>
         ))}
       </Carousel>
-      <Paper elevation={3} sx={{ padding: "1.5rem", marginBottom: "1.5rem", textAlign: "center" }}>
+      <Paper
+        elevation={3}
+        sx={{
+          padding: "1.5rem",
+          marginBottom: "1.5rem",
+          textAlign: "center",
+        }}
+      >
         <Typography
           variant="h6"
           sx={{ marginBottom: "1rem", fontWeight: "bold", color: "#444" }}
         >
           Detalles del Producto
         </Typography>
-        <Typography variant="body1" sx={{ marginBottom: "0.5rem", color: "#555" }}>
+        <Typography
+          variant="body1"
+          sx={{ marginBottom: "0.5rem", color: "#555" }}
+        >
           {producto.descripcion}
         </Typography>
-        <Typography variant="h5" sx={{ fontWeight: "bold", color: "#2e7d32" }}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: "bold", color: "#2e7d32" }}
+        >
           Precio: ₡{new Intl.NumberFormat("es-CR").format(producto.precio)}
         </Typography>
       </Paper>
@@ -152,9 +176,7 @@ const ProductoDetalles: React.FC = () => {
           padding: "0.8rem 2rem",
           fontSize: "1rem",
         }}
-        href={`https://wa.me/62469920?text=${encodeURIComponent(
-          `Hola, estoy interesado en el producto: ${producto.nombre} (Código: ${producto.codigo || "N/A"}), me gustaría saber más información.`
-        )}`}
+        href={`https://wa.me/62469920?text=${encodeURIComponent(mensaje)}`}
         target="_blank"
       >
         Consultar por WhatsApp

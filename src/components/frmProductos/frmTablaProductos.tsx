@@ -25,8 +25,11 @@ import {
   DialogTitle,
   useMediaQuery,
   useTheme,
+  Card,
+  CardContent,
+  CardMedia,
+  CardActions,
 } from "@mui/material";
-// Importamos también Visibility y Link
 import { Edit, Delete, Visibility } from "@mui/icons-material";
 import { Link } from "react-router-dom";
 
@@ -53,7 +56,6 @@ const ProductoTable: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [totalProductos, setTotalProductos] = useState(0);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
-  // Se utiliza searchInput para lo que escribe el usuario y search para la consulta real
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [selectedCategoria, setSelectedCategoria] = useState<number | "">("");
@@ -104,7 +106,7 @@ const ProductoTable: React.FC = () => {
     fetchCategorias();
   }, [enqueueSnackbar]);
 
-  // Escuchamos los eventos de Socket.io para actualizaciones en tiempo real (de otros usuarios)
+  // Socket.io para actualizaciones en tiempo real
   useEffect(() => {
     socket.on("producto_creado", (producto: Producto) => {
       console.log("📥 Evento recibido: producto_creado", producto);
@@ -151,12 +153,10 @@ const ProductoTable: React.FC = () => {
     setPage(0);
   };
 
-  // Actualizamos el valor del input sin disparar la búsqueda
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(event.target.value);
   };
 
-  // Al presionar el botón, actualizamos el estado "search" y reiniciamos la página
   const handleSearchButtonClick = () => {
     setSearch(searchInput);
     setPage(0);
@@ -272,7 +272,7 @@ const ProductoTable: React.FC = () => {
         sx={{
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
-          gap: 2, // Separa los elementos en ambas vistas
+          gap: 2,
           alignItems: "center",
           marginBottom: "1rem",
         }}
@@ -310,22 +310,45 @@ const ProductoTable: React.FC = () => {
         </Button>
       </Box>
 
-      {/* Lista de productos según dispositivo */}
+      {/* Vista de productos */}
       {isMobile ? (
-        // Vista Mobile: cada producto se muestra en un "card" simple
+        // Vista Mobile mejorada usando Card
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {productos.map((producto) => (
-            <Paper key={producto.id} sx={{ padding: 2 }}>
-              <Typography variant="subtitle1" fontWeight="bold">
-                {producto.nombre}
-              </Typography>
-              <Typography variant="body2">Código: {producto.codigo || "N/A"}</Typography>
-              <Typography variant="body2">
-                Precio: ₡{new Intl.NumberFormat("es-CR").format(producto.precio)}
-              </Typography>
-              {/* Iconos de acciones en móvil */}
-              <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                {/* Botón "Ver producto" */}
+            <Card key={producto.id}>
+              {producto.imagenes.length > 0 ? (
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={producto.imagenes[0].urlImagen}
+                  alt={producto.nombre}
+                  sx={{ objectFit: "cover" }}
+                />
+              ) : (
+                // Imagen por defecto en caso de no tener
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image="https://via.placeholder.com/300x140?text=Sin+Imagen"
+                  alt="Sin imagen"
+                  sx={{ objectFit: "cover" }}
+                />
+              )}
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  {producto.nombre}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Código: {producto.codigo || "N/A"}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Precio: ₡{new Intl.NumberFormat("es-CR").format(producto.precio)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  {producto.descripcion}
+                </Typography>
+              </CardContent>
+              <CardActions>
                 <IconButton
                   component={Link}
                   to={`/producto/${producto.id}`}
@@ -333,16 +356,14 @@ const ProductoTable: React.FC = () => {
                 >
                   <Visibility />
                 </IconButton>
-                {/* Botón "Editar" */}
                 <IconButton color="primary" onClick={() => handleEditProducto(producto)}>
                   <Edit />
                 </IconButton>
-                {/* Botón "Eliminar" */}
                 <IconButton color="secondary" onClick={() => handleOpenConfirm(producto)}>
                   <Delete />
                 </IconButton>
-              </Box>
-            </Paper>
+              </CardActions>
+            </Card>
           ))}
         </Box>
       ) : (
@@ -421,7 +442,6 @@ const ProductoTable: React.FC = () => {
                     ))}
                   </TableCell>
                   <TableCell>
-                    {/* Botón "Ver producto" */}
                     <IconButton
                       component={Link}
                       to={`/producto/${producto.id}`}
@@ -429,11 +449,9 @@ const ProductoTable: React.FC = () => {
                     >
                       <Visibility />
                     </IconButton>
-                    {/* Botón "Editar" */}
                     <IconButton color="primary" onClick={() => handleEditProducto(producto)}>
                       <Edit />
                     </IconButton>
-                    {/* Botón "Eliminar" */}
                     <IconButton color="secondary" onClick={() => handleOpenConfirm(producto)}>
                       <Delete />
                     </IconButton>
@@ -445,7 +463,7 @@ const ProductoTable: React.FC = () => {
         </TableContainer>
       )}
 
-      {/* Paginador siempre visible */}
+      {/* Paginador */}
       <Box sx={{ mt: 2 }}>
         <TablePagination
           rowsPerPageOptions={[5, 10, 15]}
