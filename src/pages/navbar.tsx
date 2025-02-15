@@ -48,17 +48,26 @@ const categories = [
       { id: 23, nombre: "Pulseras Macrame para Compartir" },
       { id: 24, nombre: "Pulseras Macrame Personalizadas" },  
     ],
+    
   },
   {
     id: 4,
-    nombre: "Más Productos",
+    nombre: "Mochilas",
     subcategorias: [
       { id: 18, nombre: "Mochila de Viaje" },
+      { id: 28, nombre: "Mochilas Bimbo y Lola" },
+    ],
+  },
+  
+  {
+    id: 5,
+    nombre: "Más Productos",
+    subcategorias: [
       { id: 19, nombre: "Relojes" },
       { id: 25, nombre: "Acero Inoxidable" },
       { id: 26, nombre: "Collares y Pulseras de Mariposa" },
     ],
-  },
+  }
 ];
 
 const Navbar: React.FC = () => {
